@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Busabfahrtszeiten</title>
+<meta charset="utf-8" />
+<link rel="stylesheet" type="text/css" href="http://h.fs-et.de/style.css">
+<meta name='viewport' content='width=device-width' />
+
+	<script type="text/javascript" src="js/jquery.min.js"></script>
+	<script type="text/javascript" src="js/jquery.couch.js"></script>
+	
+
+</head>
+<body>
+
+<div class="page">
+	<div class="head">
+		<h1>Haltestellen in der Nähe</h1>
+	</div>
+	<div class="content">
+
+<table>
+		<tr>
+			<td class="head">#</td>
+			<td class="head">Bushaltestelle</td>
+			<td class="head">Entfernung</td>
+		</tr>
+		<tr id="insertPoint"></tr>
+		</table>
+		<div id="load"><img src="http://h.fs-et.de/load.gif"></div>
+
+	</div>
+	<div class="foot">
+		Ein gemeinsamer Service der Fachschaft Elektrotechnik & datalove HSG<br><a href="http://www.fs-et.de">www.fs-et.de</a> :: <a href="http://ulmapi.de">ulmapi.de</a> 
+	</div>
+</div>
+
+
+
+<script type="text/javascript">	
+window.onload=function(){
+	if(navigator.geolocation){
+	navigator.geolocation.getCurrentPosition(showPosition);
+	}
+	else{
+		alert("Geolocation is not supported by this browser.");
+		document.getElementById("load").style.display = 'none';
+	}
+}
+function showPosition(pos){
+
+		$.ajax("/geodaten/_design/haltestellen/_list/nearby/haltestellen?lat="+pos.coords.latitude+"&lon="+pos.coords.longitude, {
+		dataType : "json",
+		success: function(data){
+				var i = 0;
+				data.rows.forEach(function(e){
+					var text = '<tr id="liste'+(++i)+'"><td>'+(i)+'</td><td style="font-weight:300"><a href="http://h.fs-et.de/'+e[0]+'">' + e[2] + '</a></td>';
+					text += '<td>' + Math.round(e[1])+ ' Meter</td></tr>';
+					$('#liste'+i).remove();
+					$('#insertPoint').before(text);
+				});
+				document.getElementById("load").style.display = 'none';
+			},
+			error: function(e){alert(e);}
+		});
+
+	
+
+}	
+</script>
+
+</body>
+</html>
+
